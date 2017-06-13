@@ -1,5 +1,5 @@
-FROM jenkins:1.642.1
-MAINTAINER Justin Menga <justin.menga@gmail.com>
+FROM jenkins:2.46.3
+MAINTAINER adaptiva <petedmarshall@hotmail.com>
 
 # Suppress apt installation warnings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -22,7 +22,7 @@ ARG DOCKER_COMPOSE=1.6.2
 
 # Install base packages
 RUN apt-get update -y && \
-    apt-get install apt-transport-https curl python-dev python-setuptools gcc make libssl-dev -y && \
+    apt-get install apt-transport-https curl python-dev python-setuptools gcc libffi-dev make libssl-dev -y && \
     easy_install pip
 
 # Install Docker Engine
@@ -36,11 +36,11 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C0
 
 # Install Docker Compose
 RUN pip install docker-compose==${DOCKER_COMPOSE:-1.6.2} && \
-    pip install ansible boto boto3
+    pip2 install ansible boto boto3
 
 # Change to jenkins user
 USER jenkins
 
 # Add Jenkins plugins
 COPY plugins.txt /usr/share/jenkins/plugins.txt
-RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
+RUN /usr/local/bin/install-plugins.sh $(cat /usr/share/jenkins/plugins.txt | tr '\n' ' ')
